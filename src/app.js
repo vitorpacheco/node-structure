@@ -4,7 +4,7 @@ import express from 'express';
 import 'express-async-errors';
 import cors from 'cors';
 import path from 'path';
-import * as Youch from 'youch';
+import Youch from 'youch';
 
 import routes from './routes';
 
@@ -19,6 +19,7 @@ const middlewares = (server) => server
 const router = (server) => server.use(routes);
 
 const exceptionHandler = (server) => server.use(async (err, req, res, next) => {
+  console.log(process.env.NODE_ENV);
   if (process.env.NODE_ENV === 'development') {
     const errors = await new Youch(err, req).toJSON();
 

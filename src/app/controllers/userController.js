@@ -21,7 +21,7 @@ export const storeUser = async (req, res) => {
   // todo: verify if the user already exists then add user to the database
 
   return res.json({
-    id: '1',
+    id: 1,
     name: 'Vitor Pacheco',
     email: 'vpacheco.costa@gmail.com',
   });
@@ -52,7 +52,7 @@ export const updateUser = async (req, res) => {
   // todo: get the user from request
 
   const reqUser = {
-    id: '1',
+    id: 1,
     name: 'Vitor Pacheco',
     email: 'vpacheco.costa@gmail.com',
     password: '123456'
@@ -62,19 +62,19 @@ export const updateUser = async (req, res) => {
 
   }
 
-  // todo: compare with encrypted passwod
+  // todo: compare with encrypted password
 
-  if (oldPassword && !(oldPassword !== reqUser.password)) {
+  if (oldPassword && (oldPassword !== reqUser.password)) {
     return res.status(401).json({ error: 'Password does not match' });
   }
 
-  const { id, name } = user;
+  const { id, name } = reqUser;
 
-  return {
+  return res.json({
     id,
     name,
     email
-  };
+  });
 };
 
 export default { storeUser, updateUser };
