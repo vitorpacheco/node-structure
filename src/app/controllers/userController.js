@@ -1,4 +1,5 @@
 import * as Yup from 'yup';
+import userSchema from '../schemas/userSchema';
 
 export const storeUser = async (req, res) => {
   const schema = Yup.object().shape({
@@ -18,12 +19,18 @@ export const storeUser = async (req, res) => {
     return res.status(400).json({ error: 'Validation fails' });
   }
 
-  // todo: verify if the user already exists then add user to the database
+  const usersExists = await userSchema.findOne({ email: req.body.email });
+
+  if (usersExists) {
+    return res.status(400).json({ error: 'User already exists' });
+  }
+
+  const { id, name, email } = await userSchema.create(req.body);
 
   return res.json({
-    id: 1,
-    name: 'Vitor Pacheco',
-    email: 'vpacheco.costa@gmail.com',
+    id,
+    name,
+    email,
   });
 };
 
@@ -37,10 +44,11 @@ export const updateUser = async (req, res) => {
     password: Yup.string()
       .min(6)
       .when('oldPassword', (oldPassword, field) =>
-        oldPassword ? field.required() : field,
+        oldPassword ? field.required() : field
       ),
-    confirmPassword: Yup.string()
-      .when('password', (password, field) => password ? field.required().oneOf([Yup.ref('password')]) : field),
+    confirmPassword: Yup.string().when('password', (password, field) =>
+      password ? field.required().oneOf([Yup.ref('password')]) : field
+    ),
   });
 
   if (!(await schema.isValid(req.body))) {
@@ -55,16 +63,15 @@ export const updateUser = async (req, res) => {
     id: 1,
     name: 'Vitor Pacheco',
     email: 'vpacheco.costa@gmail.com',
-    password: '123456'
+    password: '123456',
   };
 
   if (email && email !== reqUser.email) {
-
   }
 
   // todo: compare with encrypted password
 
-  if (oldPassword && (oldPassword !== reqUser.password)) {
+  if (oldPassword && oldPassword !== reqUser.password) {
     return res.status(401).json({ error: 'Password does not match' });
   }
 
@@ -73,7 +80,7 @@ export const updateUser = async (req, res) => {
   return res.json({
     id,
     name,
-    email
+    email,
   });
 };
 

@@ -8,33 +8,31 @@ import Youch from 'youch';
 
 import routes from './routes';
 
-const middlewares = (server) => server
-  .use(cors())
-  .use(express.json())
-  .use(
-    '/files',
-    express.static(path.resolve(__dirname, '..', 'tmp', 'uploads')),
-  );
+import './database';
 
-const router = (server) => server.use(routes);
+const middlewares = server =>
+  server
+    .use(cors())
+    .use(express.json())
+    .use(
+      '/files',
+      express.static(path.resolve(__dirname, '..', 'tmp', 'uploads'))
+    );
 
-const exceptionHandler = (server) => server.use(async (err, req, res, next) => {
-  console.log(process.env.NODE_ENV);
-  if (process.env.NODE_ENV === 'development') {
-    const errors = await new Youch(err, req).toJSON();
+const router = server => server.use(routes);
 
-    return res.status(500).json(errors);
-  }
+const exceptionHandler = server =>
+  server.use(async (err, req, res, next) => {
+    console.log(process.env.NODE_ENV);
+    if (process.env.NODE_ENV === 'development') {
+      const errors = await new Youch(err, req).toJSON();
 
-  return res.status(500).json({ error: 'Internal server error' });
-});
+      return res.status(500).json(errors);
+    }
 
-const App = () => exceptionHandler(
-  router(
-    middlewares(
-      express()
-    )
-  )
-);
+    return res.status(500).json({ error: 'Internal server error' });
+  });
+
+const App = () => exceptionHandler(router(middlewares(express())));
 
 export default App;
