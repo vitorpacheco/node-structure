@@ -3,9 +3,13 @@ import * as Yup from 'yup';
 
 import authConfig from '../../config/auth';
 
+import userModel from '../schemas/user';
+
 export const storeSession = async (req, res) => {
   const schema = Yup.object().shape({
-    email: Yup.string().required().email(),
+    email: Yup.string()
+      .required()
+      .email(),
     password: Yup.string().required(),
   });
 
@@ -15,16 +19,26 @@ export const storeSession = async (req, res) => {
 
   const { email, password } = req.body;
 
-  // todo: get the user from the database by the email, return an error if not found
+  const user = await userModel.findOne({ email });
 
-  // todo: compare with encrypted password
+  if (!user) {
+    res.status(401).json({ error: 'User not found' });
+  }
+
+  if (!(await user.checkPassword(password))) {
+    res.status(401).json({ error: 'Password does not match' });
+  }
+
+  const { id, name } = user;
 
   return res.json({
-    id: 1,
-    name: 'Vitor Pacheco',
-    email: 'vpacheco.costa@gmail.com',
-    token: jwt.sign({ id: 1 }, authConfig.secret, {
-      expiresIn: authConfig.expiresIn
+    user: {
+      id,
+      name,
+      email,
+    },
+    token: jwt.sign({ id }, authConfig.secret, {
+      expiresIn: authConfig.expiresIn,
     }),
   });
 };

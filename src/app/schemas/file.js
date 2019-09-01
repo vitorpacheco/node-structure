@@ -1,6 +1,6 @@
 import { model, Schema } from 'mongoose';
 
-export const fileSchema = new Schema(
+export const file = new Schema(
   {
     name: {
       type: 'string',
@@ -16,4 +16,4 @@ export const fileSchema = new Schema(
   }
 );
 
-export default model('file', fileSchema);
+export default model('file', file);

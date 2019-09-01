@@ -1,5 +1,6 @@
 import * as Yup from 'yup';
-import userSchema from '../schemas/userSchema';
+
+import userModel from '../schemas/user';
 
 export const storeUser = async (req, res) => {
   const schema = Yup.object().shape({
@@ -19,13 +20,13 @@ export const storeUser = async (req, res) => {
     return res.status(400).json({ error: 'Validation fails' });
   }
 
-  const usersExists = await userSchema.findOne({ email: req.body.email });
+  const usersExists = await userModel.findOne({ email: req.body.email });
 
   if (usersExists) {
     return res.status(400).json({ error: 'User already exists' });
   }
 
-  const { id, name, email } = await userSchema.create(req.body);
+  const { id, name, email } = await userModel.create(req.body);
 
   return res.json({
     id,
@@ -57,25 +58,26 @@ export const updateUser = async (req, res) => {
 
   const { email, oldPassword } = req.body;
 
-  // todo: get the user from request
+  const user = await userModel.findOne({ email });
 
-  const reqUser = {
-    id: 1,
-    name: 'Vitor Pacheco',
-    email: 'vpacheco.costa@gmail.com',
-    password: '123456',
-  };
+  if (email && email !== user.email) {
+    const userExists = await userModel.findOne({ email });
 
-  if (email && email !== reqUser.email) {
+    if (userExists) {
+      return res.status(400).json({ error: 'User already exists' });
+    }
   }
 
-  // todo: compare with encrypted password
-
-  if (oldPassword && oldPassword !== reqUser.password) {
-    return res.status(401).json({ error: 'Password does not match' });
+  if (oldPassword && !(await user.checkPassword(oldPassword))) {
+    return res.status(401).json({error: 'Password does not match'});
   }
 
-  const { id, name } = reqUser;
+  console.log(user);
+  console.log(req.body);
+  Object.assign(user, req.body);
+  console.log(user);
+
+  const { id, name } = await user.save();
 
   return res.json({
     id,

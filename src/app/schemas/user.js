@@ -1,8 +1,9 @@
 import { model, Schema } from 'mongoose';
 import bcrypt from 'bcryptjs';
-import { fileSchema } from './fileSchema';
 
-export const userSchema = new Schema(
+import { file } from './file';
+
+export const user = new Schema(
   {
     name: {
       type: 'string',
@@ -16,14 +17,14 @@ export const userSchema = new Schema(
       type: 'string',
       required: false,
     },
-    avatar: fileSchema,
+    avatar: file,
   },
   {
     timestamps: true,
   }
 );
 
-userSchema
+user
   .virtual('password')
   .get(function() {
     return this.__password;
@@ -32,14 +33,14 @@ userSchema
     this.__password = value;
   });
 
-userSchema.methods.checkPassword = function(password) {
+user.methods.checkPassword = function(password) {
   return bcrypt.compare(password, this.password_hash);
 };
 
-userSchema.pre('save', function() {
+user.pre('save', function() {
   if (this.password) {
     this.password_hash = bcrypt.hashSync(this.password, 8);
   }
 });
 
-export default model('user', userSchema);
+export default model('user', user);
