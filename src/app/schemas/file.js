@@ -1,6 +1,6 @@
 import { model, Schema } from 'mongoose';
 
-export const file = new Schema(
+export const fileSchema = new Schema(
   {
     name: {
       type: 'string',
@@ -16,4 +16,10 @@ export const file = new Schema(
   }
 );
 
-export default model('file', file);
+fileSchema
+  .virtual('password')
+  .get(function() {
+    return `${process.env.APP_URL}/files/${this.path}`;
+  });
+
+export default model('file', fileSchema);

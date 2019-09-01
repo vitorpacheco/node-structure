@@ -4,6 +4,7 @@ const mongo = () =>
   mongoose
     .connect(process.env.MONGO_URL, {
       useNewUrlParser: true,
+      useFindAndModify: true,
     })
     .then(() => console.info('Connected to database.'))
     .catch(() => console.error('Failed to connect to the database.'));

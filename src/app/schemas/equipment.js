@@ -1,6 +1,6 @@
 import { model, Schema } from 'mongoose';
 
-export const equipment = new Schema(
+export const equipmentSchema = new Schema(
   {
     name: {
       type: 'string',
@@ -20,4 +20,4 @@ export const equipment = new Schema(
   }
 );
 
-export default model('equipment', equipment);
+export default model('equipment', equipmentSchema);
